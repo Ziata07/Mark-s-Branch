@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-
 namespace HyperSpace_Cheese_Battle
 {
     class Program
@@ -12,39 +11,45 @@ namespace HyperSpace_Cheese_Battle
         const int MinOnBoard = 0;
         static bool gameOver = false;
         static bool testMode = false;
-
-        static PlayerMovement[,] board = new PlayerMovement[,]
-       {
-            {PlayerMovement.arrowUp,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowDown}, //Row 1 (0)
-            {PlayerMovement.arrowUp,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight,PlayerMovement.arrowRight},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowDown,PlayerMovement.arrowUp,PlayerMovement.arrowRight,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowRight},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowRight},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowRight},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowDown},
-            {PlayerMovement.arrowUp,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.arrowLeft,PlayerMovement.win} //Row 8 (7)
-       };
-
-        static BoardTile[,] board_new = new BoardTile[,]
+        enum PlayerMovement
         {
-            { new BoardTile(PlayerMovement.arrowUp)}
-
-        };
-        
-
-        static List<Player> players = new List<Player>(); //For dynamic changes!
+            arrowUp,
+            arrowDown,
+            arrowLeft,
+            arrowRight,
+            win
+        }
 
         class BoardTile
         {
+
+            public PlayerMovement Direction;
+            public bool IsCheese;
+
             public BoardTile(PlayerMovement direction, bool isCheese = false)
             {
                 Direction = direction;
                 IsCheese = isCheese;
             }
-           public PlayerMovement Direction;
-            public bool IsCheese;
-
         }
+
+        static List<Player> playerList = new List<Player>();
+
+        static BoardTile[,] board = new BoardTile[,] 
+       {
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight){IsCheese = true},new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowDown),},//Coloumn 1 (0)
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowDown),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight){IsCheese = true},new BoardTile(PlayerMovement.arrowDown),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp){ IsCheese = true},new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft){IsCheese= true},new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowDown)},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.win)},//Coloumn 8 (7)            
+                         
+       };
+
+        
+              
         class Player
         {
             public int Number;
@@ -54,15 +59,15 @@ namespace HyperSpace_Cheese_Battle
         static void ResetGame()
         {
             int playerNumber = 0;
-            players.Clear();
+            playerList.Clear();
 
             do
             {
                 Console.Write("How many players are playing? ");
-                string playerNumberString = Console.ReadLine();
+                string numP = Console.ReadLine();
                 try
                 {
-                    playerNumber = int.Parse(playerNumberString);
+                    playerNumber = int.Parse(numP);
                 }
                 catch (FormatException)
                 {
@@ -76,41 +81,34 @@ namespace HyperSpace_Cheese_Battle
                 {
                     Console.WriteLine("This game can only support between 2, 3, or 4 players!");
                 }
-                else 
+                else
                 {
-                    for (int i = 0; i < playerNumber; i++)//create player function
+                    for (int i = 0; i < playerNumber; i++)
                     {
-                        players.Add(new Player() {Number = i + 1 });//Adds new player to list
+                        playerList.Add(new Player() { Number = i + 1 });
                     }
                     break;
-                }                    
-                
+                }
             } while (true);
-
-           
         }
 
         static void ShowStatus()
         {
             Console.WriteLine("Hyperspace Cheese Battle Status Report\n" +
                               "======================================");
-            Console.WriteLine($"There are {players.Count} players in the game.");
-            foreach (Player p in players)//USE foreach!
+            Console.WriteLine($"There are {playerList.Count} players in the game.");
+            foreach (Player p in playerList)
             {
-                //Console.WriteLine("Player {0}'s current position is ({1}.{2})\n------------", players.IndexOf(p) + 1, p.X, p.Y);//IndexOf!
-                Console.WriteLine($"Player {p.Number}'s current position is ({p.X}.{p.Y})\n------------");//IndexOf!
-
+                Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}");
             }
-
-            Console.WriteLine("Press any key to Progress.");
+            Console.Write("Press any key to continue!");
             Console.ReadKey();
         }
         static void MakeMoves()
         {
-            while (!gameOver)//name bools to make sense!
+            while (!gameOver)
             {
-                
-                foreach (Player p in players)
+                foreach (Player p in playerList)
                 {
                     PlayerTurn(p);
                     if (gameOver)
@@ -120,44 +118,15 @@ namespace HyperSpace_Cheese_Battle
                 }
             }
         }
-
-        enum PlayerMovement
-        {
-            arrowUp,
-            arrowDown,
-            arrowLeft,
-            arrowRight,
-            win
-        }
-
-        static bool cheesePowerSquare(int x, int y)
-        {
-            if (x == 4 && y == 1)
-            {
-                return true;
-            }
-            else if (x == 0 && y == 3)
-            {
-                return true;
-            }
-            else if (x == 6 && y == 4)
-            {
-                return true;
-            }
-            else if (x == 3 && y == 5)
-            {
-                return true;
-            }
-            else
-                return false;
-        }
+      
         static bool RocketInSquare(int x, int y)
         {
-
-            for (int i = 0; i < players.Count; i++)//foreach
+            foreach (Player p in playerList)
             {
-                if (players[i].X == x && players[i].Y == y)
+                if (p.X == x && p.Y == y)
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -174,12 +143,60 @@ namespace HyperSpace_Cheese_Battle
         {
             return diceRandom.Next(1, 7);
         }
+
+        static bool IsMoveValid(int x, int y)
+        {
+            if (x >= MaxOnBoard || y >= MaxOnBoard)
+            {
+                return true;
+            }
+            else if (x <= MinOnBoard || y <= MinOnBoard)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        static bool AnotherPlayerOnSpot(int x, int y)
+        {
+            foreach (Player p in playerList)
+            {
+                if (p.X == x && p.Y == y)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static bool SpotIsCheese (int x, int y)
+        {
+            if (board[x,y] == new BoardTile(PlayerMovement.arrowUp) { IsCheese = true})
+            {
+                return true;
+            }
+            else if (board[x, y] == new BoardTile(PlayerMovement.arrowRight) { IsCheese = true })
+            {
+                return true;
+            }
+            else if (board[x, y] == new BoardTile(PlayerMovement.arrowLeft) { IsCheese = true })
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private static void PlayerTurn(Player player)
         {
             ShowStatus();
             int displayNum = player.Number;
             int result = PresetDiceThrow();
             bool bounce = true;
+            BoardTile test = new BoardTile(PlayerMovement.arrowUp);
+
 
             /*if (testMode == false)
             {
@@ -193,15 +210,16 @@ namespace HyperSpace_Cheese_Battle
                 result = PresetDiceThrow();
                 testMode = false;
             }*/
-            Console.WriteLine("\nPlayer {0}, it's your turn. Press any key to roll the dice!", displayNum);
-            Console.ReadLine();
-            Console.WriteLine("Player {0} rolled a {1}", displayNum, result);
-            while (bounce)
-            {
-                switch (board[player.X, player.Y])
+
+            Console.WriteLine($"Player {displayNum} rolled a {result}");
+            BoardTile currentDirection = board[player.X, player.Y];
+            
+            
+            
+                switch (currentDirection) //Can't use switch statement? Due to need a constant?
                 {
-                    case PlayerMovement.arrowUp:
-                        if (RocketInSquare(player.X, player.Y + result))//check for a bounce here/see if another rocket is at the location.
+                case test: //??
+                    if (RocketInSquare(players[playerNo].X, players[playerNo].Y + result))//check for a bounce here/see if another rocket is at the location.
                         {
                             bounce = true;
                         }
@@ -209,13 +227,13 @@ namespace HyperSpace_Cheese_Battle
                         {
                             bounce = false;
                         }
-                        if (result + player.Y <= MaxOnBoard)//whether the above is true or false, see if we're on or off the board.
+                        if (result + players[playerNo].Y <= MaxOnBoard)//whether the above is true or false, see if we're on or off the board.
                         {
-                            player.Y += result;
-                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, player.X, player.Y);
+                            players[playerNo].Y += result;
+                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
                             if (bounce) //if the above lands us on a point where another player is...
                             {
-                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, player.X, player.Y);
+                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
                                 result = 1; //??
                             }
                             else
@@ -230,7 +248,7 @@ namespace HyperSpace_Cheese_Battle
                         }
                         break;
                     case PlayerMovement.arrowDown:
-                        if (RocketInSquare(player.X, playera.Y - result))
+                        if (RocketInSquare(players[playerNo].X, players[playerNo].Y - result))
                         {
                             bounce = true;
                         }
@@ -317,20 +335,19 @@ namespace HyperSpace_Cheese_Battle
                     default:
                         break;
                 }
-            }
+            
 
-            if (board[players[playerNo].X, players[playerNo].Y] == PlayerMovement.win)
+            if (board[player.X, player.Y] == PlayerMovement.win)
             {
                 Console.WriteLine("Game is over!");
                 gameOver = true;
                 bounce = false;
             }
-            else if (cheesePowerSquare(players[playerNo].X, players[playerNo].Y) == true)
+            else if (cheesePowerSquare(player.X, player.Y) == true)
             {
                 Console.WriteLine("Option 1: Roll the dice again!\nOption 2: Send a player back down");
                 Console.Write("Press 1 or 2: ");
                 string input = Console.ReadLine();
-
                 if (input == "1")
                 {
                     result = PresetDiceThrow();
@@ -462,7 +479,7 @@ namespace HyperSpace_Cheese_Battle
                 else if (input == "2")
                 {
                     Console.WriteLine("Choose a player to send back down!");
-                    for (int i = 0; i < players.Length; i++)
+                    for (int i = 0; i < player.Count; i++)
                     {
                         if (i == playerNo)
                         {
@@ -506,11 +523,14 @@ namespace HyperSpace_Cheese_Battle
                 }
             }
             else
-                Console.WriteLine("No Winner Yet!");
+                Console.Write("No Winner Yet!");
         }
         static void Main(string[] args)
         {
+            Console.WriteLine(board[0,0]);
+            Console.ReadKey();
             ResetGame();
+
             MakeMoves();
             Console.ReadLine();
         }
