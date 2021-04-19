@@ -1,0 +1,90 @@
+using System;
+using System.Timers;
+using System.Collections.Generic;
+
+namespace HyperSpace_Cheese_Battle
+{
+    class Program
+    {
+        static List<Player> playerList = new List<Player>();
+        
+        
+        static void Main(string[] args)
+        {
+            playerList.Add(new Player { });
+            playerList.Add(new Player { });
+            playerList.Add(new Player { });
+            playerList.Add(new Player { });
+
+            if (board[0] == new BoardTile(PlayerMovement.arrowUp))
+            {
+                Console.WriteLine("If statement");
+            }
+            else
+            {
+                Console.WriteLine("The else statement.");
+            }
+
+            Console.WriteLine($"This is a test: {playerList.Count}");
+            Console.ReadLine();
+            string z = "";
+                      
+            
+            Console.ReadLine();
+            
+            double x = 55.504;
+            Console.WriteLine("{0: ##0.00}", x);
+            Console.ReadLine();
+
+            Console.WriteLine("Give me a number! I'll convert it into cash!");
+            string input = Console.ReadLine();
+            double y = double.Parse(input);
+            Console.WriteLine("{0,5: ###,##0.00}", y);
+            Console.ReadKey();
+
+            Console.WriteLine("Let's try an int this time.");
+            input = Console.ReadLine();
+            int yA = int.Parse(input);
+            Console.WriteLine("{0: 0.00}", yA);
+        }
+
+
+
+        class Player
+        {
+            public int Number;
+            public int X = 0;
+            public int Y = 0;
+        }
+        enum PlayerMovement
+        {
+            arrowUp,
+            arrowDown,
+            arrowLeft,
+            arrowRight,
+            win
+        }
+
+        class BoardTile
+        {
+            public PlayerMovement Direction;
+            public bool IsCheese;
+
+            public BoardTile(PlayerMovement direction, bool isCheese = false)
+            {
+                Direction = direction;
+                IsCheese = isCheese;
+            }
+        }
+
+        
+
+        static BoardTile[] board = new BoardTile[] //fix the board
+       {
+            new BoardTile(PlayerMovement.arrowUp) 
+       };
+
+
+    }
+}
+
