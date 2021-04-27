@@ -4,13 +4,13 @@ namespace HyperSpace_Cheese_Battle
 {
     class Program
     {
-        static int[] diceValues = new int[] { 1, 2, 3, 3 };
+        static int[] diceValues = new int[] { 2, 0, 1, 4 };
         static int diceValuePos = 0;
         static Random diceRandom = new Random();
         const int MaxOnBoard = 7;
         const int MinOnBoard = 0;
         static bool gameOver = false;
-        static bool testMode = false;
+        
         enum PlayerMovement
         {
             arrowUp,
@@ -22,7 +22,6 @@ namespace HyperSpace_Cheese_Battle
 
         class BoardTile
         {
-
             public PlayerMovement Direction;
             public bool IsCheese;
 
@@ -31,25 +30,35 @@ namespace HyperSpace_Cheese_Battle
                 Direction = direction;
                 IsCheese = isCheese;
             }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || !this.GetType().Equals(obj.GetType()))
+                {
+                    return false;
+                }
+                else
+                {
+                    BoardTile tile = (BoardTile)obj;
+                    return this.Direction == tile.Direction && this.IsCheese == tile.IsCheese;
+                }
+            }
         }
 
         static List<Player> playerList = new List<Player>();
 
-        static BoardTile[,] board = new BoardTile[,] 
+        static BoardTile[,] board = new BoardTile[,]
        {
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight){IsCheese = true},new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowDown),},//Coloumn 1 (0)
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),},
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),},
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowDown),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight),new BoardTile(PlayerMovement.arrowRight){IsCheese = true},new BoardTile(PlayerMovement.arrowDown),new BoardTile(PlayerMovement.arrowRight),},
-            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp){ IsCheese = true},new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),},
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp){IsCheese = true},new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowRight),},
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowRight),},
             {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft){IsCheese= true},new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowDown)},
-            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.win)},//Coloumn 8 (7)            
-                         
+            {new BoardTile(PlayerMovement.arrowUp),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.arrowLeft),new BoardTile(PlayerMovement.win)},//Coloumn 8 (7)                                     
        };
 
-        
-              
         class Player
         {
             public int Number;
@@ -99,9 +108,9 @@ namespace HyperSpace_Cheese_Battle
             Console.WriteLine($"There are {playerList.Count} players in the game.");
             foreach (Player p in playerList)
             {
-                Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}");
+                Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}\n");
             }
-            Console.Write("Press any key to continue!");
+            Console.WriteLine("Press any key to continue!");
             Console.ReadKey();
         }
         static void MakeMoves()
@@ -110,15 +119,21 @@ namespace HyperSpace_Cheese_Battle
             {
                 foreach (Player p in playerList)
                 {
-                    PlayerTurn(p);
+                                       
                     if (gameOver)
                     {
                         break;
                     }
+                    else
+                    {
+                        ShowStatus();
+                        PlayerTurn(p);
+                    }
+                    
                 }
             }
         }
-      
+
         static bool RocketInSquare(int x, int y)
         {
             foreach (Player p in playerList)
@@ -131,6 +146,73 @@ namespace HyperSpace_Cheese_Battle
             return false;
         }
 
+        static void ShowCheeseOptions(Player p)
+        {            
+            Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}.\nOption 1: Roll the dice again!\nOption 2: Send a player back down");
+            Console.Write("Type 1 or 2 then press enter to confirm your choice: ");
+
+            do
+            {
+                string input = Console.ReadLine();
+                if (input == "1")
+                {
+                    Console.WriteLine($"Player {p.Number} is rolling the dice again!");
+                    PlayerTurn(p);                    
+                    break;
+                }
+                else if (input == "2")
+                {
+                    PushDownPlayer();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Please enter a 1 or 2");
+                }
+            } while (true);
+        }
+
+        static void PushDownPlayer()
+        {
+            int playerNumber = 0;
+
+            Console.WriteLine("Choose a player to send back down!" + "\n");
+            foreach (Player p in playerList)
+            {
+                Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}");
+            }
+
+            do
+            {
+                Console.Write("Enter a player number: ");
+                string input = Console.ReadLine();
+
+                try
+                {
+                    playerNumber = int.Parse(input);
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine($"Enter a nummerical player number between 1 and {playerList.Count}");
+                }
+                catch (OverflowException)
+                {
+                    Console.WriteLine("Number was too large!" + $"Enter a numberical player number between 1 and {playerList.Count}");
+                }
+                if (playerNumber > playerList.Count || playerNumber < 1)
+                {
+                    Console.WriteLine($"Number was out of bounds! Choose a player from 1 to {playerList.Count}");
+                }
+                else
+                {
+                    Console.WriteLine($"You chose Player {playerNumber}.\nSending Player{playerNumber} back down!");
+                    playerList[playerNumber -1].X -= playerList[playerNumber -1].X;
+                    Console.WriteLine($"Player {playerNumber}'s position is now {playerList[playerNumber-1].X}.{playerList[playerNumber-1].Y}");
+                    break;
+                }
+
+            } while (true);
+        }
         static int DiceThrow()
         {
             int spots = diceValues[diceValuePos];
@@ -144,13 +226,13 @@ namespace HyperSpace_Cheese_Battle
             return diceRandom.Next(1, 7);
         }
 
-        static bool IsMoveValid(int x, int y)
+        static bool IsMoveInvalid(int x, int y)
         {
-            if (x >= MaxOnBoard || y >= MaxOnBoard)
+            if (x > MaxOnBoard || y > MaxOnBoard)
             {
                 return true;
             }
-            else if (x <= MinOnBoard || y <= MinOnBoard)
+            else if (x < MinOnBoard || y < MinOnBoard)
             {
                 return true;
             }
@@ -158,29 +240,17 @@ namespace HyperSpace_Cheese_Battle
                 return false;
         }
 
-        static bool AnotherPlayerOnSpot(int x, int y)
+        static bool SpotIsCheese(int x, int y)
         {
-            foreach (Player p in playerList)
-            {
-                if (p.X == x && p.Y == y)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        static bool SpotIsCheese (int x, int y)
-        {
-            if (board[x,y] == new BoardTile(PlayerMovement.arrowUp) { IsCheese = true})
+            if (board[x, y].Equals(new BoardTile(PlayerMovement.arrowUp, true)))
             {
                 return true;
             }
-            else if (board[x, y] == new BoardTile(PlayerMovement.arrowRight) { IsCheese = true })
+            else if (board[x, y].Equals(new BoardTile(PlayerMovement.arrowLeft, true)))
             {
                 return true;
             }
-            else if (board[x, y] == new BoardTile(PlayerMovement.arrowLeft) { IsCheese = true })
+            else if (board[x, y].Equals(new BoardTile(PlayerMovement.arrowRight, true)))
             {
                 return true;
             }
@@ -190,349 +260,192 @@ namespace HyperSpace_Cheese_Battle
             }
         }
         private static void PlayerTurn(Player player)
-        {
-            ShowStatus();
+        {            
+            bool playerTurnToggle = true;
             int displayNum = player.Number;
-            int result = PresetDiceThrow();
-            bool bounce = true;
-            BoardTile test = new BoardTile(PlayerMovement.arrowUp);
+            int result =  PresetDiceThrow();
 
-
-            /*if (testMode == false)
+            Console.WriteLine($"Player {displayNum} rolled a {result}.");
+            while (playerTurnToggle)
             {
-                Console.WriteLine("Test mode is off!");
-                result = DiceThrow();
-                testMode = true;
-            }
-            else
-            {
-                Console.WriteLine("Test mode is on!");
-                result = PresetDiceThrow();
-                testMode = false;
-            }*/
-
-            Console.WriteLine($"Player {displayNum} rolled a {result}");
-            BoardTile currentDirection = board[player.X, player.Y];
-            
-            
-            
-                switch (currentDirection) //Can't use switch statement? Due to need a constant?
+                BoardTile currentTile = board[player.X, player.Y];
+                PlayerMovement currentDirection = currentTile.Direction;
+                switch (currentDirection)
                 {
-                case test: //??
-                    if (RocketInSquare(players[playerNo].X, players[playerNo].Y + result))//check for a bounce here/see if another rocket is at the location.
+                    case PlayerMovement.arrowUp:
                         {
-                            bounce = true;
-                        }
-                        else
-                        {
-                            bounce = false;
-                        }
-                        if (result + players[playerNo].Y <= MaxOnBoard)//whether the above is true or false, see if we're on or off the board.
-                        {
-                            players[playerNo].Y += result;
-                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                            if (bounce) //if the above lands us on a point where another player is...
+                            int newX = player.X;
+                            int newY = player.Y + result;
+
+                            if (IsMoveInvalid(newX, newY))
                             {
-                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                result = 1; //??
+                                Console.WriteLine($"Move is not valid. The total roll of {newY} will move player off the board!");
+                                playerTurnToggle = false;
+                                break;
+                            }
+
+                            if (RocketInSquare(newX, newY)) 
+                            {
+                                Console.WriteLine($"There is another player in coordinate {newX}.{newY}. Player {displayNum} is making a bounce!");
+                                result = 1;
+                                playerTurnToggle = true;
                             }
                             else
                             {
-                                Console.WriteLine("No bounce!");
+                                playerTurnToggle = false;
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                            bounce = false;
+
+                            if (SpotIsCheese(newX, newY))
+                            {
+                                Console.WriteLine($"Player {displayNum} landed on a spot of cheese!\n");
+                                player.X = newX;
+                                player.Y = newY; //better way to do this?
+                                ShowCheeseOptions(player);
+                                newY = player.Y;
+                                newX = player.X;
+                            }
+
+                            player.X = newX;
+                            player.Y = newY;
                         }
                         break;
+
                     case PlayerMovement.arrowDown:
-                        if (RocketInSquare(players[playerNo].X, players[playerNo].Y - result))
                         {
-                            bounce = true;
-                        }
-                        else
-                        {
-                            bounce = false;
-                        }
-                        if (players[playerNo].Y - result >= MinOnBoard)
-                        {
-                            players[playerNo].Y -= result;
-                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                            if (bounce)
+                            int newX = player.X;
+                            int newY = player.Y - result;
+
+                            if (IsMoveInvalid(newX, newY))
                             {
-                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                result = 1; //??
+                                Console.WriteLine($"Move is not valid. The total roll of {newY} will move player off the board!");
+                                playerTurnToggle = false;
+                                break;
+                            }
+
+                            if (RocketInSquare(newX, newY))
+                            {
+                                Console.WriteLine($"There is another player in coordinate {newX}.{newY}. Player {displayNum} is making a bounce!");
+                                result = 1;
+                                playerTurnToggle = true;
                             }
                             else
                             {
-                                Console.WriteLine("No Bounce!");
+                                playerTurnToggle = false;
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
+
+                            if (SpotIsCheese(newX, newY))
+                            {
+                                Console.WriteLine($"Player {displayNum} landed on a spot of cheese!\n");
+                                player.X = newX;
+                                player.Y = newY; //better way to do this?
+                                ShowCheeseOptions(player);
+                                newY = player.Y;
+                                newX = player.X;
+                            }
+
+                            player.X = newX;
+                            player.Y = newY;
                         }
                         break;
+
                     case PlayerMovement.arrowLeft:
-                        if (RocketInSquare(players[playerNo].X - result, players[playerNo].Y))
                         {
-                            bounce = true;
-                        }
-                        else
-                        {
-                            bounce = false;
-                        }
-                        if (players[playerNo].X - result >= MinOnBoard)
-                        {
-                            players[playerNo].X -= result;
-                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                            if (bounce)
+                            int newX = player.X - result;
+                            int newY = player.Y;
+
+                            if (IsMoveInvalid(newX, newY))
                             {
-                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                result = 1; //??
+                                Console.WriteLine($"Move is not valid. The total roll of {newX} will move player off the board!");
+                                playerTurnToggle = false;
+                                break;
+                            }
+
+                            if (RocketInSquare(newX, newY))
+                            {
+                                Console.WriteLine($"There is another player in coordinate {newX}.{newY}. Player {displayNum} is making a bounce!");
+                                result = 1;
+                                playerTurnToggle = true;
                             }
                             else
                             {
-                                Console.WriteLine("No Bounce!");
+                                playerTurnToggle = false;
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                        }
 
+                            if (SpotIsCheese(newX, newY))
+                            {
+                                Console.WriteLine($"Player {displayNum} landed on a spot of cheese!\n");
+                                player.X = newX;
+                                player.Y = newY; //better way to do this?
+                                ShowCheeseOptions(player);
+                                newY = player.Y;
+                                newX = player.X;
+                            }
+
+                            player.X = newX;
+                            player.Y = newY;
+                        }
                         break;
+
                     case PlayerMovement.arrowRight:
-                        if (RocketInSquare(players[playerNo].X + result, players[playerNo].Y))
                         {
-                            bounce = true;
-                        }
-                        else
-                        {
-                            bounce = false;
-                        }
-                        if (result + players[playerNo].X <= MaxOnBoard)
-                        {
-                            players[playerNo].X += result;
-                            Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                            if (bounce)
+                            int newX = player.X + result;
+                            int newY = player.Y;
+
+                            if (IsMoveInvalid(newX, newY))
                             {
-                                Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                result = 1; //??
+                                Console.WriteLine($"Move is not valid. The total roll of {newX} will move player off the board!");
+                                playerTurnToggle = false;
+                                break;
+                            }
+
+                            if (RocketInSquare(newX, newY))
+                            {
+                                Console.WriteLine($"There is another player in coordinate {newX}.{newY}. Player {displayNum} is making a bounce!");
+                                result = 1;
+                                playerTurnToggle = true;
                             }
                             else
                             {
-                                Console.WriteLine("No Bounce!");
+                                playerTurnToggle = false;
                             }
+
+                            if (SpotIsCheese(newX, newY))
+                            {
+                                Console.WriteLine($"Player {displayNum} landed on a spot of cheese!\n");
+                                player.X = newX;
+                                player.Y = newY; //better way to do this?
+                                ShowCheeseOptions(player);
+                                newY = player.Y;
+                                newX = player.X;
+                            }
+
+                            player.X = newX;
+                            player.Y = newY;
                         }
-                        else
-                        {
-                            Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                        }
-                        break;
-                    default:
                         break;
                 }
-            
+            }
 
-            if (board[player.X, player.Y] == PlayerMovement.win)
+            if (board[player.X, player.Y].Direction == PlayerMovement.win)
             {
-                Console.WriteLine("Game is over!");
+                Console.WriteLine("\n======================================");
+                Console.WriteLine($"Player {displayNum} wins!");
+
                 gameOver = true;
-                bounce = false;
+                playerTurnToggle = false;                
             }
-            else if (cheesePowerSquare(player.X, player.Y) == true)
-            {
-                Console.WriteLine("Option 1: Roll the dice again!\nOption 2: Send a player back down");
-                Console.Write("Press 1 or 2: ");
-                string input = Console.ReadLine();
-                if (input == "1")
-                {
-                    result = PresetDiceThrow();
-                    Console.WriteLine("Player {0} rolled a {1}", displayNum, result);
-                    bounce = true;
-                    while (bounce) //we set up ANOTHER turn here. Is there any easier way?
-                    {
-                        switch (board[players[playerNo].X, players[playerNo].Y])
-                        {
-                            case PlayerMovement.arrowUp:
-                                if (RocketInSquare(players[playerNo].X, players[playerNo].Y + result))
-                                {
-                                    bounce = true;
-                                }
-                                else
-                                {
-                                    bounce = false;
-                                }
-                                if (result + players[playerNo].Y <= MaxOnBoard)
-                                {
-                                    players[playerNo].Y += result;
-                                    Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                    if (bounce) //if the above lands us on a point where another player is...
-                                    {
-                                        Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                        result = 1; //??
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("No bounce!");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                    bounce = false;
-                                }
-                                break;
-                            case PlayerMovement.arrowDown:
-                                if (RocketInSquare(players[playerNo].X, players[playerNo].Y - result))
-                                {
-                                    bounce = true;
-                                }
-                                else
-                                {
-                                    bounce = false;
-                                }
-                                if (players[playerNo].Y - result >= MinOnBoard)
-                                {
-                                    players[playerNo].Y -= result;
-                                    Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                    if (bounce)
-                                    {
-                                        Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                        result = 1; //??
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("No Bounce!");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                }
-                                break;
-                            case PlayerMovement.arrowLeft:
-                                if (RocketInSquare(players[playerNo].X - result, players[playerNo].Y))
-                                {
-                                    bounce = true;
-                                }
-                                else
-                                {
-                                    bounce = false;
-                                }
-                                if (players[playerNo].X - result >= MinOnBoard)
-                                {
-                                    players[playerNo].X -= result;
-                                    Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                    if (bounce)
-                                    {
-                                        Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                        result = 1; //??
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("No Bounce!");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                }
-
-                                break;
-                            case PlayerMovement.arrowRight:
-                                if (RocketInSquare(players[playerNo].X + result, players[playerNo].Y))
-                                {
-                                    bounce = true;
-                                }
-                                else
-                                {
-                                    bounce = false;
-                                }
-                                if (result + players[playerNo].X <= MaxOnBoard)
-                                {
-                                    players[playerNo].X += result;
-                                    Console.WriteLine("Player {0} is now at position ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                    if (bounce)
-                                    {
-                                        Console.WriteLine("Player {0} is making a bounce off of another player at ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                        result = 1; //??
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("No Bounce!");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Roll was too high! Player {0} will remain on their square ({1}.{2})", displayNum, players[playerNo].X, players[playerNo].Y);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                else if (input == "2")
-                {
-                    Console.WriteLine("Choose a player to send back down!");
-                    for (int i = 0; i < player.Count; i++)
-                    {
-                        if (i == playerNo)
-                        {
-                            Console.WriteLine("Your current position is ({0}.{1})", players[i].X, players[i].Y);
-                        }
-                        Console.WriteLine("Player {0}'s current position is ({1}.{2})", i + 1, players[i].X, players[i].Y);
-                    }
-
-                    do
-                    {
-                        int numInput = 0;
-                        Console.Write("Choose a player: ");
-                        string inputPlayer = Console.ReadLine();
-
-                        try
-                        {
-                            numInput = int.Parse(inputPlayer);
-                        }
-                        catch (FormatException)
-                        {
-                            Console.Write("Please enter a number from the list above: ");
-                        }
-                        catch (OverflowException)
-                        {
-                            Console.WriteLine("That submitted number was too long. Please try again.");
-                        }
-                        if (numInput > players.Length || numInput <= 0)
-                        {
-                            Console.WriteLine("There are currently {0} players in the game. Please choose a player!.", players.Length);
-                            inputPlayer = Console.ReadLine();
-                            numInput = int.Parse(inputPlayer);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Okay! Sending player {0} back down.", numInput);
-                            players[numInput - 1].X = 0;
-                            Console.WriteLine("Player's {0} new position is ({1}.{2})", numInput, players[numInput - 1].X, players[numInput - 1].Y);
-                            break;
-                        }
-                    } while (true);
-                }
-            }
-            else
-                Console.Write("No Winner Yet!");
         }
         static void Main(string[] args)
         {
-            Console.WriteLine(board[0,0]);
-            Console.ReadKey();
-            ResetGame();
-
-            MakeMoves();
-            Console.ReadLine();
+            string newGame;
+            do
+            {
+                ResetGame();
+                MakeMoves();
+                Console.WriteLine("Do you want to play again? Press 'Enter' to start new game or press any key to close the application!\n");
+                newGame = Console.ReadLine();
+                
+            } while (newGame == "");
         }
     }
 }
