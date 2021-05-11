@@ -4,13 +4,13 @@ namespace HyperSpace_Cheese_Battle
 {
     class Program
     {
-        static int[] diceValues = new int[] { 2, 0, 1, 4 };
-        static int diceValuePos = 0;
-        static Random diceRandom = new Random();
+       // static int[] diceValues = new int[] { 2, 0, 1, 4 };
+       // static int diceValuePos = 0;
+        static Random diceRandom = new Random(1);//set seed #, predetermined dice roll.
         const int MaxOnBoard = 7;
         const int MinOnBoard = 0;
         static bool gameOver = false;
-        
+
         enum PlayerMovement
         {
             arrowUp,
@@ -64,9 +64,12 @@ namespace HyperSpace_Cheese_Battle
             public int Number;
             public int X = 0;
             public int Y = 0;
+
+            //void move function here, takes X and Y
         }
         static void ResetGame()
         {
+            gameOver = false;
             int playerNumber = 0;
             playerList.Clear();
 
@@ -103,7 +106,7 @@ namespace HyperSpace_Cheese_Battle
 
         static void ShowStatus()
         {
-            Console.WriteLine("Hyperspace Cheese Battle Status Report\n" +
+            Console.WriteLine("\nHyperspace Cheese Battle Status Report\n" +
                               "======================================");
             Console.WriteLine($"There are {playerList.Count} players in the game.");
             foreach (Player p in playerList)
@@ -119,7 +122,7 @@ namespace HyperSpace_Cheese_Battle
             {
                 foreach (Player p in playerList)
                 {
-                                       
+
                     if (gameOver)
                     {
                         break;
@@ -129,7 +132,7 @@ namespace HyperSpace_Cheese_Battle
                         ShowStatus();
                         PlayerTurn(p);
                     }
-                    
+
                 }
             }
         }
@@ -147,7 +150,7 @@ namespace HyperSpace_Cheese_Battle
         }
 
         static void ShowCheeseOptions(Player p)
-        {            
+        {
             Console.WriteLine($"Player {p.Number}'s position is {p.X}.{p.Y}.\nOption 1: Roll the dice again!\nOption 2: Send a player back down");
             Console.Write("Type 1 or 2 then press enter to confirm your choice: ");
 
@@ -157,7 +160,7 @@ namespace HyperSpace_Cheese_Battle
                 if (input == "1")
                 {
                     Console.WriteLine($"Player {p.Number} is rolling the dice again!");
-                    PlayerTurn(p);                    
+                    PlayerTurn(p);
                     break;
                 }
                 else if (input == "2")
@@ -206,21 +209,21 @@ namespace HyperSpace_Cheese_Battle
                 else
                 {
                     Console.WriteLine($"You chose Player {playerNumber}.\nSending Player{playerNumber} back down!");
-                    playerList[playerNumber -1].X -= playerList[playerNumber -1].X;
-                    Console.WriteLine($"Player {playerNumber}'s position is now {playerList[playerNumber-1].X}.{playerList[playerNumber-1].Y}");
+                    playerList[playerNumber - 1].X -= playerList[playerNumber - 1].X;
+                    Console.WriteLine($"Player {playerNumber}'s position is now {playerList[playerNumber - 1].X}.{playerList[playerNumber - 1].Y}");
                     break;
                 }
 
             } while (true);
         }
-        static int DiceThrow()
-        {
-            int spots = diceValues[diceValuePos];
-            diceValuePos = diceValuePos + 1;
-            if (diceValuePos == diceValues.Length)
-                diceValuePos = 0;
-            return spots;
-        }
+        //static int DiceThrow()
+        //{
+        //    int spots = diceValues[diceValuePos];
+        //    diceValuePos = diceValuePos + 1;
+        //    if (diceValuePos == diceValues.Length)
+        //        diceValuePos = 0;
+        //    return spots;
+        //}
         static int PresetDiceThrow()
         {
             return diceRandom.Next(1, 7);
@@ -260,11 +263,13 @@ namespace HyperSpace_Cheese_Battle
             }
         }
         private static void PlayerTurn(Player player)
-        {            
+        {
             bool playerTurnToggle = true;
             int displayNum = player.Number;
-            int result =  PresetDiceThrow();
+            int result = PresetDiceThrow();
 
+            Console.WriteLine($"It's Player {displayNum}'s turn! Press Enter to Roll Dice.");
+            Console.ReadKey();
             Console.WriteLine($"Player {displayNum} rolled a {result}.");
             while (playerTurnToggle)
             {
@@ -283,8 +288,14 @@ namespace HyperSpace_Cheese_Battle
                                 playerTurnToggle = false;
                                 break;
                             }
+                            else
+                            {
+                                player.X = newX;
+                                player.Y = newY;
+                                //move player ,set coordinates
+                            }
 
-                            if (RocketInSquare(newX, newY)) 
+                            if (RocketInSquare(player.X, player.Y))
                             {
                                 Console.WriteLine($"There is another player in coordinate {newX}.{newY}. Player {displayNum} is making a bounce!");
                                 result = 1;
@@ -295,18 +306,18 @@ namespace HyperSpace_Cheese_Battle
                                 playerTurnToggle = false;
                             }
 
-                            if (SpotIsCheese(newX, newY))
+                            if (SpotIsCheese(player.X, player.Y))
                             {
                                 Console.WriteLine($"Player {displayNum} landed on a spot of cheese!\n");
-                                player.X = newX;
-                                player.Y = newY; //better way to do this?
+                               // player.X = newX;
+                               // player.Y = newY; //better way to do this?
                                 ShowCheeseOptions(player);
-                                newY = player.Y;
-                                newX = player.X;
+                               // newY = player.Y;
+                               // newX = player.X;
                             }
 
-                            player.X = newX;
-                            player.Y = newY;
+                           // player.X = newX;
+                           // player.Y = newY;
                         }
                         break;
 
@@ -432,7 +443,7 @@ namespace HyperSpace_Cheese_Battle
                 Console.WriteLine($"Player {displayNum} wins!");
 
                 gameOver = true;
-                playerTurnToggle = false;                
+                playerTurnToggle = false;
             }
         }
         static void Main(string[] args)
@@ -444,8 +455,8 @@ namespace HyperSpace_Cheese_Battle
                 MakeMoves();
                 Console.WriteLine("Do you want to play again? Press 'Enter' to start new game or press any key to close the application!\n");
                 newGame = Console.ReadLine();
-                
-            } while (newGame == "");
+
+            } while (String.Equals(newGame,String.Empty));
         }
     }
 }
