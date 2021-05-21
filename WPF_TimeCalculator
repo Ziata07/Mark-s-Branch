@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace New_WPF
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void calculateButton_Click(object sender, RoutedEventArgs e)
+        {
+            int seconds = 0;
+            bool checkUserInput = true;
+            do
+            {
+                try
+                {
+                    seconds = int.Parse(secTextBox.Text);
+                }
+                catch (FormatException)
+                {
+                    resultLabel.Foreground = new SolidColorBrush(Colors.Red);
+                    MessageBox.Show("Please enter a number!");
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    resultLabel.Content = "Please enter a smaller num!";
+                }
+                if (String.Equals(secTextBox, String.Empty))
+                {
+                    secTextBox.Foreground = new SolidColorBrush(Colors.Red);
+                }
+                else
+                {
+                    resultLabel.Foreground = new SolidColorBrush(Colors.White);
+
+                    checkUserInput = false;
+                    resultLabel.Content = CalculateSeconds(seconds);
+                }
+            } while (checkUserInput);            
+        }
+
+        public int CalculateSeconds(int x)
+        {
+            if (x < 0)
+            {
+                x = 0; //safeguard if user puts in negative num
+            }
+            else
+            {
+                return x;
+            }
+            return x;
+        }
+        public bool CheckSecondsInput(int input)
+        {
+            try
+            {
+                input = int.Parse(secTextBox.Text);
+            }
+            catch (FormatException)
+            {
+                //Insert message box, please try again
+                return true;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                //Number too long, please try again
+                return true;
+            }
+            catch (NullReferenceException)
+            {
+                //Nothing input?
+                return true;
+            }
+
+            return false;
+        }
+    }
+}
