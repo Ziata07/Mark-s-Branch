@@ -27,35 +27,8 @@ namespace New_WPF
 
         private void calculateButton_Click(object sender, RoutedEventArgs e)
         {
-            int seconds = 0;
-            bool checkUserInput = true;
-            do
-            {
-                try
-                {
-                    seconds = int.Parse(secTextBox.Text);
-                }
-                catch (FormatException)
-                {
-                    resultLabel.Foreground = new SolidColorBrush(Colors.Red);
-                    MessageBox.Show("Please enter a number!");
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    resultLabel.Content = "Please enter a smaller num!";
-                }
-                if (String.Equals(secTextBox, String.Empty))
-                {
-                    secTextBox.Foreground = new SolidColorBrush(Colors.Red);
-                }
-                else
-                {
-                    resultLabel.Foreground = new SolidColorBrush(Colors.White);
-
-                    checkUserInput = false;
-                    resultLabel.Content = CalculateSeconds(seconds);
-                }
-            } while (checkUserInput);            
+            int results = CheckHoursInput() + CheckMinutesInput() + CheckSecondsInput() ;
+            resultLabel.Content = results;
         }
 
         public int CalculateSeconds(int x)
@@ -70,29 +43,102 @@ namespace New_WPF
             }
             return x;
         }
-        public bool CheckSecondsInput(int input)
+        public int CalculateHours(int x)
         {
+            if (x < 0)
+            {
+                x = 0; //safeguard if user puts in negative num
+            }
+            else
+            {
+                x = x * 3600;
+            }
+            return x;
+        }
+        public int CalculateMinutes(int x)
+        {
+            if (x < 0)
+            {
+                x = 0; //safeguard if user puts in negative num
+            }
+            else
+            {
+                x = x * 60;
+            }
+            return x;
+        }
+
+        public int CheckSecondsInput()
+        {
+            int seconds = 0;
             try
             {
-                input = int.Parse(secTextBox.Text);
+                seconds = int.Parse(secTextBox.Text);
             }
             catch (FormatException)
-            {
-                //Insert message box, please try again
-                return true;
+            {                
+                MessageBox.Show("No number entered for: Seconds");
+                secTextBox.Foreground = new SolidColorBrush(Colors.Red);
             }
-            catch (ArgumentOutOfRangeException)
+            catch (OverflowException)
             {
-                //Number too long, please try again
-                return true;
+                MessageBox.Show("Please enter a small number!");
+                resultLabel.Content = String.Empty;
             }
-            catch (NullReferenceException)
+            if (seconds < 0)
             {
-                //Nothing input?
-                return true;
+                MessageBox.Show("Insert a non negative number for: Seconds");
+                secTextBox.Foreground = new SolidColorBrush(Colors.Red);
             }
-
-            return false;
+            return CalculateSeconds(seconds);
+        }
+        public int CheckHoursInput()
+        {
+            int hours = 0;
+            try
+            {
+                hours = int.Parse(hoursTextBox.Text);
+            }
+            catch (FormatException)
+            {                
+                MessageBox.Show("No number entered for: Hours");
+                hoursTextBox.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("Please enter a small number!");
+                resultLabel.Content = String.Empty;
+            }
+            if (hours < 0)
+            {
+                MessageBox.Show("Insert a non negative number for: Hours");
+                hoursTextBox.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            return CalculateHours(hours);
+        }
+        public int CheckMinutesInput()
+        {
+            int minutes = 0;
+            try
+            {
+                minutes = int.Parse(minTextBox.Text);
+            }
+            catch (FormatException)
+            {                
+                MessageBox.Show("No number entered for: Minutes");
+                minTextBox.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("Please enter a small number!");
+                resultLabel.Content = String.Empty;
+            }
+            if (minutes < 0)
+            {
+                MessageBox.Show("Insert a non negative number for: Minutes");
+                minTextBox.Foreground = new SolidColorBrush(Colors.Red);
+            }
+            return CalculateMinutes(minutes);
         }
     }
 }
